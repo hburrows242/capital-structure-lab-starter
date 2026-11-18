@@ -1,0 +1,15 @@
+{
+  "name": "AGE Capital Structure",
+  "short_name": "Cap Structure",
+  "description": "FIN 4150 AGE case: what borrowing does to CDSS's share price, EPS, TIE and WACC, plus the Firm U and Firm L example.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f7f5",
+  "theme_color": "#b3122e",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

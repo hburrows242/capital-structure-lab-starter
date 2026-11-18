@@ -301,6 +301,13 @@
     show();
   }
 
+  // Register the service worker (sw.js) so the app installs and works offline.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.warn('Service worker not registered:', err));
+    });
+  }
+
   loadData()
     .then(d => {
       renderExample(d);
