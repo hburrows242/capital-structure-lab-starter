@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AGE Capital Structure</title>
+  <meta name="description" content="FIN 4150 AGE case: what borrowing does to CDSS's share price, EPS, TIE and WACC, plus the Firm U and Firm L example.">
+  <meta name="theme-color" content="#b3122e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Cap Structure">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>AGE Capital Structure</h1>
+    <p class="sub">FIN 4150 · Campus Deli and Sub Shop (CDSS) and the Firm U / Firm L example</p>
+  </header>
+
+  <main>
+    <p id="load-error" class="warning" hidden></p>
+
+    <section id="cdss-lever">
+      <h2>Lever: CDSS's debt</h2>
+      <label class="slider-label" for="cdss-slider">Amount borrowed: <strong id="cdss-debt-out"></strong>
+        <span id="cdss-rate-out" class="rates"></span></label>
+      <input type="range" id="cdss-slider" min="0" step="1" value="0">
+      <div class="ticks" id="cdss-ticks"></div>
+      <div class="buttons">
+        <button type="button" id="btn-best-price">Best price</button>
+        <button type="button" id="btn-highest-eps">Highest EPS</button>
+      </div>
+      <p class="note" id="cdss-button-note"></p>
+      <div id="cdss-lever-table"></div>
+      <p class="note" id="cdss-lever-foot"></p>
+    </section>
+
+    <section id="firm-lever">
+      <h2>Lever: Firm L's debt</h2>
+      <label class="slider-label" for="firm-slider">Firm L's debt: <strong id="firm-debt-out"></strong></label>
+      <input type="range" id="firm-slider" min="0" value="0">
+      <div class="buttons">
+        <button type="button" id="btn-case">Case</button>
+      </div>
+      <p class="note" id="firm-lever-note"></p>
+      <div id="firm-lever-table"></div>
+    </section>
+
+    <section id="example">
+      <h2>Question c: Firm U and Firm L</h2>
+      <p class="note" id="example-note"></p>
+      <div class="firm-grid">
+        <div class="firm" id="firm-u"></div>
+        <div class="firm" id="firm-l"></div>
+      </div>
+    </section>
+
+    <section id="cdss">
+      <h2>Question d: CDSS at each amount of borrowing</h2>
+      <p class="note" id="cdss-note"></p>
+      <p id="zero-check"></p>
+
+      <h3>Case method (questions d(3) and d(4)): buy back at today's <span id="p0"></span></h3>
+      <p class="note">Shares repurchased = D / P₀. EPS = net income / shares remaining. Price = EPS / r<sub>s</sub>.
+        WACC uses book weights: D/A × r<sub>d</sub>(1 − T) + (A − D)/A × r<sub>s</sub>.</p>
+      <div id="case-table"></div>
+
+      <h3>New-price method: buy back at the price after the announcement</h3>
+      <p class="note">S = net income / r<sub>s</sub>, V = S + D, P = V / n. Shares repurchased = D / P.
+        WACC uses market weights: D/V × r<sub>d</sub>(1 − T) + S/V × r<sub>s</sub>.</p>
+      <div id="new-table"></div>
+      <p id="new-checks" class="note"></p>
+
+      <h3>Summary</h3>
+      <ul id="summary"></ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>All figures come from the CSV files in <code>data/</code>. Everything runs in your browser; nothing is sent anywhere.</p>
+  </footer>
+
+  <script src="capstruct.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+:root {
+  --bg: #f7f7f5;
+  --card: #ffffff;
+  --ink: #1d1d1f;
+  --muted: #5f6368;
+  --line: #dcdcd8;
+  --accent: #b3122e;       /* Utah Tech red */
+  --best: #e8f3ea;
+  --warn-bg: #fff4e5;
+  --warn-ink: #8a4b00;
+  --ok: #1e7a34;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+header, main, footer { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+
+header { padding-top: 20px; }
+h1 { margin: 0; font-size: 1.6rem; color: var(--accent); }
+.sub { margin: 4px 0 0; color: var(--muted); }
+
+h2 { font-size: 1.25rem; margin: 28px 0 6px; }
+h3 { font-size: 1.05rem; margin: 22px 0 6px; }
+
+section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 4px 16px 16px;
+  margin-top: 18px;
+}
+
+.note { color: var(--muted); font-size: 0.9rem; margin: 4px 0 10px; }
+
+.warning {
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+  border-left: 4px solid var(--warn-ink);
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+.ok { color: var(--ok); }
+.warn-inline { color: var(--warn-ink); font-weight: 600; white-space: normal; }
+
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-size: 0.85rem; color: var(--muted); font-weight: 600; vertical-align: bottom; white-space: normal; }
+tr.stat td { background: #fafaf8; }
+tr.best td { background: var(--best); font-weight: 600; }
+
+/* Firm U and Firm L: side by side on wide screens, stacked on phones. */
+.firm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.firm h3 { margin-top: 8px; }
+
+/* Levers */
+.slider-label { display: block; margin: 8px 0 4px; }
+.rates { color: var(--muted); font-size: 0.9rem; display: inline-block; }
+input[type="range"] { width: 100%; margin: 6px 0 0; accent-color: var(--accent); }
+.ticks { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+.buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+button {
+  font: inherit;
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--accent);
+  cursor: pointer;
+}
+button:hover, button:focus-visible { background: var(--accent); color: #fff; }
+.lever-table td, .lever-table th { white-space: normal; }
+.lever-table th:not(:first-child) { text-align: right; }
+.lever-table td:not(:first-child) { white-space: nowrap; }
+.lever-table .small { display: block; white-space: normal; font-weight: 400; font-size: 0.78rem; color: var(--muted); }
+
+footer { color: var(--muted); font-size: 0.85rem; padding-bottom: 24px; }
+
+/* Phones: CDSS rows become cards so nothing scrolls sideways. */
+@media (max-width: 760px) {
+  .firm-grid { grid-template-columns: 1fr; }
+
+  .cards thead { display: none; }
+  .cards, .cards tbody, .cards tr, .cards td { display: block; width: 100%; }
+  .cards tr {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 4px 0;
+  }
+  .cards td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: none;
+    padding: 3px 10px;
+    text-align: right;
+  }
+  .cards td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    text-align: left;
+    white-space: normal;
+  }
+  .cards td:first-child { font-weight: 700; text-align: right; }
+}
+
+@media (max-width: 400px) {
+  body { font-size: 15px; }
+  .firm th, .firm td { padding: 4px 4px; font-size: 0.88rem; }
+}
