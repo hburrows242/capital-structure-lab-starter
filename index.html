@@ -17,6 +17,32 @@
   <main>
     <p id="load-error" class="warning" hidden></p>
 
+    <section id="cdss-lever">
+      <h2>Lever: CDSS's debt</h2>
+      <label class="slider-label" for="cdss-slider">Amount borrowed: <strong id="cdss-debt-out"></strong>
+        <span id="cdss-rate-out" class="rates"></span></label>
+      <input type="range" id="cdss-slider" min="0" step="1" value="0">
+      <div class="ticks" id="cdss-ticks"></div>
+      <div class="buttons">
+        <button type="button" id="btn-best-price">Best price</button>
+        <button type="button" id="btn-highest-eps">Highest EPS</button>
+      </div>
+      <p class="note" id="cdss-button-note"></p>
+      <div id="cdss-lever-table"></div>
+      <p class="note" id="cdss-lever-foot"></p>
+    </section>
+
+    <section id="firm-lever">
+      <h2>Lever: Firm L's debt</h2>
+      <label class="slider-label" for="firm-slider">Firm L's debt: <strong id="firm-debt-out"></strong></label>
+      <input type="range" id="firm-slider" min="0" value="0">
+      <div class="buttons">
+        <button type="button" id="btn-case">Case</button>
+      </div>
+      <p class="note" id="firm-lever-note"></p>
+      <div id="firm-lever-table"></div>
+    </section>
+
     <section id="example">
       <h2>Question c: Firm U and Firm L</h2>
       <p class="note" id="example-note"></p>

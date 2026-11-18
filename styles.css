@@ -49,6 +49,7 @@ section {
   border-radius: 4px;
 }
 .ok { color: var(--ok); }
+.warn-inline { color: var(--warn-ink); font-weight: 600; white-space: normal; }
 
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 th, td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
@@ -60,6 +61,27 @@ tr.best td { background: var(--best); font-weight: 600; }
 /* Firm U and Firm L: side by side on wide screens, stacked on phones. */
 .firm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .firm h3 { margin-top: 8px; }
+
+/* Levers */
+.slider-label { display: block; margin: 8px 0 4px; }
+.rates { color: var(--muted); font-size: 0.9rem; display: inline-block; }
+input[type="range"] { width: 100%; margin: 6px 0 0; accent-color: var(--accent); }
+.ticks { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+.buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+button {
+  font: inherit;
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--accent);
+  cursor: pointer;
+}
+button:hover, button:focus-visible { background: var(--accent); color: #fff; }
+.lever-table td, .lever-table th { white-space: normal; }
+.lever-table th:not(:first-child) { text-align: right; }
+.lever-table td:not(:first-child) { white-space: nowrap; }
+.lever-table .small { display: block; white-space: normal; font-weight: 400; font-size: 0.78rem; color: var(--muted); }
 
 footer { color: var(--muted); font-size: 0.85rem; padding-bottom: 24px; }
 

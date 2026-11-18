@@ -131,7 +131,7 @@
         ebt,
         taxes,
         netIncome,
-        roe: netIncome / equity,
+        roe: equity > 0 ? netIncome / equity : null,     // no book equity: n/a
         tie: interest > 0 ? ebit / interest : null   // no interest: n/a
       };
     });
@@ -141,7 +141,35 @@
     return { debt, equity, interest, years, roe, tie };
   }
 
+  // Debt amounts for the Firm L slider: 0, step, 2×step, … up to max.
+  function sliderValues(max, step) {
+    const out = [];
+    for (let i = 0; i * step <= max + 1e-9; i++) out.push(roundHalfUp(i * step, 6));
+    return out;
+  }
+
   // ---------- CDSS ----------
+
+  // Management's stake after a buyback. Management doesn't sell, so its
+  // shares stay at mgmtShare × n. If the buyback takes every outside share,
+  // the stake is 100%; if it would take more, management would have to sell.
+  function managementStake(mgmtShare, n, repurchased) {
+    const outside = (1 - mgmtShare) * n;
+    const remaining = n - repurchased;
+    const tol = 1e-9 * n;
+    if (repurchased > outside + tol) return { stake: null, status: 'must_sell' };
+    if (Math.abs(repurchased - outside) <= tol) return { stake: 1, status: 'none_left' };
+    return { stake: (mgmtShare * n) / remaining, status: 'ok' };
+  }
+
+  // Where a button should send the CDSS slider, given the debt each
+  // buyback method picks: same amount → go there; different → the case
+  // method's amount, flagged so the page can name both.
+  function buttonTarget(caseDebt, newDebt) {
+    if (caseDebt === null && newDebt === null) return { debt: null, agree: true };
+    if (caseDebt === null) return { debt: newDebt, agree: false };
+    return { debt: caseDebt, agree: caseDebt === newDebt };
+  }
 
   // EBIT = sales × (1 − variable cost rate) − fixed costs.
   function cdssEBIT(cdss) {
@@ -177,6 +205,7 @@
       dps: caseEPS,                      // all earnings paid out
       price: casePrice,
       wacc: waccBook,
+      management: managementStake(cdss.management_share, n, caseRepurchased),
       valid: caseRemaining > 0
     };
 
@@ -197,6 +226,7 @@
       dps: npEPS,
       price: P,
       wacc: waccMarket,
+      management: managementStake(cdss.management_share, n, npRepurchased),
       // Checks from CLAUDE.md: EPS = r_s × P and WACC = EBIT(1 − T) / V.
       epsCheck: Math.abs(npEPS - rs * P) < 1e-9 * Math.max(1, Math.abs(npEPS)),
       waccCheck: Math.abs(waccMarket - ebit * (1 - T) / V) < 1e-12
@@ -261,7 +291,7 @@
   const api = {
     parseCSV, num, itemMap, roundHalfUp,
     fmtDollars, fmtCents, fmtPct, fmtMultiple, fmtNumber,
-    stats, exampleFirm, cdssEBIT, cdssAtDebt, cdssSchedule
+    stats, exampleFirm, sliderValues, managementStake, buttonTarget, cdssEBIT, cdssAtDebt, cdssSchedule
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

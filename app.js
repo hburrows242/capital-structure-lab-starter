@@ -172,10 +172,142 @@
       ? 'All four price and WACC measures point to the same amount of debt.'
       : '<span class="warning">The price and WACC measures do not all agree, so the app does not pick one.</span>');
     $('summary').innerHTML = items.map(t => '<li>' + t + '</li>').join('');
+    return out;
+  }
+
+  // ---------- Lever: CDSS's debt ----------
+
+  function stakeText(m) {
+    if (m.status === 'must_sell') return '<span class="warn-inline">Management would have to sell</span>';
+    if (m.status === 'none_left') return C.fmtPct(m.stake) + '<span class="small">no outside shareholders left</span>';
+    return C.fmtPct(m.stake);
+  }
+
+  function setupCDSSLever(d, out) {
+    const rows = out.rows;
+    const slider = $('cdss-slider');
+    slider.max = rows.length - 1;          // one stop per banker amount
+    $('cdss-ticks').innerHTML = rows.map(r =>
+      '<span>' + (r.debt >= 1e6 ? '$' + C.fmtNumber(r.debt / 1e6, 0) + 'M' : '$' + C.fmtNumber(r.debt / 1e3, 0) + 'k') + '</span>').join('');
+
+    const s = out.summary;
+    const priceTarget = C.buttonTarget(s.bestPriceCase, s.bestPriceNew);
+    const epsTarget = C.buttonTarget(s.highestEpsCase, s.highestEpsNew);
+    const f = v => (v === null ? 'none' : C.fmtDollars(v));
+
+    // Note under the slider: are the best-price and highest-EPS levels the same?
+    const notes = [];
+    if (!priceTarget.agree) notes.push('Best price differs by method: ' + f(s.bestPriceCase) +
+      ' with the $20 buyback, ' + f(s.bestPriceNew) + ' at the new price. The button goes to the case method\'s amount.');
+    if (!epsTarget.agree) notes.push('Highest EPS differs by method: ' + f(s.highestEpsCase) +
+      ' with the $20 buyback, ' + f(s.highestEpsNew) + ' at the new price. The button goes to the case method\'s amount.');
+    notes.push(priceTarget.debt === epsTarget.debt
+      ? 'The best-price level and the highest-EPS level are the same: ' + f(priceTarget.debt) + '.'
+      : 'The best-price level (' + f(priceTarget.debt) + ') and the highest-EPS level (' +
+        f(epsTarget.debt) + ') are not the same.');
+    $('cdss-button-note').textContent = notes.join(' ');
+
+    function show() {
+      const r = rows[Number(slider.value)];
+      const c = r.caseMethod, n = r.newPrice;
+      $('cdss-debt-out').textContent = C.fmtDollars(r.debt);
+      $('cdss-rate-out').textContent = r.rd === null
+        ? '· no debt, so no interest rate · cost of equity ' + C.fmtPct(r.rs)
+        : '· interest rate ' + C.fmtPct(r.rd) + ' · cost of equity ' + C.fmtPct(r.rs);
+      slider.setAttribute('aria-valuetext', C.fmtDollars(r.debt));
+
+      const line = (label, a, b) => '<tr><td>' + label + '</td><td>' + a + '</td><td>' + b + '</td></tr>';
+      $('cdss-lever-table').innerHTML =
+        '<table class="lever-table"><thead><tr><th></th>' +
+        '<th>Buyback at ' + C.fmtCents(d.cdss.share_price) + ' (case)</th><th>Buyback at new price</th></tr></thead><tbody>' +
+        line('Share price', C.fmtCents(c.price), C.fmtCents(n.price)) +
+        line('Shares repurchased', C.fmtNumber(c.repurchased, 2), C.fmtNumber(n.repurchased, 2)) +
+        line('Shares remaining', C.fmtNumber(c.remaining, 2), C.fmtNumber(n.remaining, 2)) +
+        line('EPS', C.fmtCents(c.eps), C.fmtCents(n.eps)) +
+        line('Dividends per share', C.fmtCents(c.dps), C.fmtCents(n.dps)) +
+        line('TIE', C.fmtMultiple(r.tie), C.fmtMultiple(r.tie)) +
+        line('WACC', C.fmtPct(c.wacc) + '<span class="small">book weights</span>',
+          C.fmtPct(n.wacc) + '<span class="small">market weights</span>') +
+        line('Management\'s share', stakeText(c.management), stakeText(n.management)) +
+        '</tbody></table>';
+      $('cdss-lever-foot').textContent =
+        'Net income ' + C.fmtDollars(r.netIncome) + ' at either method. All earnings are paid out, so dividends per share = EPS. ' +
+        'Management owns ' + C.fmtPct(d.cdss.management_share) + ' today and sells none of its shares.';
+    }
+
+    const goTo = debt => {
+      const i = rows.findIndex(r => r.debt === debt);
+      if (i === -1) return;
+      slider.value = i;
+      slider.dispatchEvent(new Event('input'));   // same path as dragging
+    };
+    slider.addEventListener('input', show);
+    $('btn-best-price').addEventListener('click', () => goTo(priceTarget.debt));
+    $('btn-highest-eps').addEventListener('click', () => goTo(epsTarget.debt));
+    show();
+  }
+
+  // ---------- Lever: Firm L's debt ----------
+
+  function setupFirmLever(d) {
+    const ex = d.example;
+    const values = C.sliderValues(ex.slider_max, ex.slider_step);
+    const slider = $('firm-slider');
+    slider.max = values.length - 1;
+    slider.step = 1;
+    const base = { totalAssets: ex.total_assets, interestRate: ex.interest_rate, taxRate: d.taxRate, scenarios: d.scenarios };
+    const u = C.exampleFirm(Object.assign({}, base, { debt: 0 }));
+    const kinds = ['bad', 'average', 'good'];
+    const yearName = i => (d.scenarios.length === 3 ? kinds[i] : 'outcome ' + (i + 1));
+
+    $('firm-lever-note').textContent =
+      'The interest rate is held at ' + C.fmtPct(ex.interest_rate) + ' at every amount of debt, so the slider shows what debt ' +
+      'does to Firm L\'s return and risk, not how lenders would respond. Both firms have ' + C.fmtDollars(ex.total_assets) +
+      ' of assets; Firm L\'s book equity = assets − debt.';
+
+    function show() {
+      const debt = values[Number(slider.value)];
+      const l = C.exampleFirm(Object.assign({}, base, { debt }));
+      $('firm-debt-out').textContent = C.fmtDollars(debt) + ' (equity ' + C.fmtDollars(l.equity) + ')';
+      slider.setAttribute('aria-valuetext', C.fmtDollars(debt));
+      const line = (label, a, b, cls) =>
+        '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td>' + label + '</td><td>' + a + '</td><td>' + b + '</td></tr>';
+      let body = '';
+      u.years.forEach((yu, i) => {
+        body += line('ROE, ' + yearName(i) + ' year<span class="small">prob. ' + C.fmtNumber(yu.probability, 2) +
+          ', EBIT ' + C.fmtDollars(yu.ebit) + '</span>', C.fmtPct(yu.roe), C.fmtPct(l.years[i].roe));
+      });
+      u.years.forEach((yu, i) => {
+        body += line('TIE, ' + yearName(i) + ' year', C.fmtMultiple(yu.tie), C.fmtMultiple(l.years[i].tie));
+      });
+      body += line('Expected ROE', C.fmtPct(u.roe.expected), C.fmtPct(l.roe.expected), 'stat') +
+        line('σ(ROE)', C.fmtPct(u.roe.sd), C.fmtPct(l.roe.sd), 'stat') +
+        line('CV of ROE', C.fmtMultiple(u.roe.cv), C.fmtMultiple(l.roe.cv), 'stat') +
+        line('Expected TIE', C.fmtMultiple(u.tie.expected), C.fmtMultiple(l.tie.expected), 'stat') +
+        line('σ(TIE)', C.fmtMultiple(u.tie.sd), C.fmtMultiple(l.tie.sd), 'stat');
+      $('firm-lever-table').innerHTML = '<table class="lever-table"><thead><tr><th></th><th>Firm U</th><th>Firm L</th></tr></thead><tbody>' +
+        body + '</tbody></table>';
+    }
+
+    slider.addEventListener('input', show);
+    $('btn-case').addEventListener('click', () => {
+      const i = values.indexOf(ex.firm_l_debt);
+      if (i === -1) return;
+      slider.value = i;
+      slider.dispatchEvent(new Event('input'));
+    });
+    // Start at the case's $10,000 (or 0 if it isn't a slider stop).
+    slider.value = Math.max(0, values.indexOf(ex.firm_l_debt));
+    show();
   }
 
   loadData()
-    .then(d => { renderExample(d); renderCDSS(d); })
+    .then(d => {
+      renderExample(d);
+      const out = renderCDSS(d);
+      setupCDSSLever(d, out);
+      setupFirmLever(d);
+    })
     .catch(err => {
       const el = $('load-error');
       el.hidden = false;
